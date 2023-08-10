@@ -1,5 +1,6 @@
 <form id="enquiry_form">
-    <label>Name : <label>
+<?php wp_nonce_field( 'wp_rest') ?>
+<label>Name : <label>
 <input type="text" name="name"> <br /><br />
 <label>Email : <label>
 <input type="text" name="email"> <br /><br />

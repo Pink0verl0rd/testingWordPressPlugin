@@ -14,6 +14,32 @@ function create_rest_endpoint(){
     ));
 }
 
-function handle_enquiry(){
-    echo 'hello there';
+function handle_enquiry($data){
+    $params = $data->get_params();
+    if( !wp_verify_nonce( $params['_wpnonce'], 'wp_rest' )){
+        return new WP_Rest_Response('Message not sent',422);
+    }
+    unset($params['_wpnonce']);
+    unset($params['_wp_http_referer']);
+
+    // send email after this lol
+    $headers = [];
+    $admin_email = get_bloginfo('admin_email');
+    $admin_name = get_bloginfo('name');
+    
+    $headers[] = "From: {$admin_name} <{$admin_email}>";
+    $headers[] = "Reply-to: {$params['name']} <{$params['email']}>";
+    $headers[] = "Content-type : html";
+
+    $subject = "New enquiry from {$params['name']}";
+
+    $message = '';
+    $message .= "Message has been sent from {$params['name']} <br /> <br />";
+
+    foreach ($params as $label => $value){
+        $message .=  ucfirst($label) . ':' . $value;
+    }
+
+    wp_mail( $admin_email, $subject, $message, $headers);
+    return new WP_REST_Response('The Message was sent',200);
 }
