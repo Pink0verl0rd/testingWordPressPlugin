@@ -8,3 +8,24 @@
  * Text Domain: options-plugin
  * 
  */
+
+ // Check to make sure the method of acces is Abasulte from root
+ if( !defined('ABSPATH') ){
+    die('You cannot be here');
+ }
+ if(!class_exists('ContactPlugin')){
+ class ContactPlugin{
+    public function __construct()
+    {
+        define('MY_PLUGIN_PATH', plugin_dir_path( __FILE__ ));
+        // require_once('MY_PLUGIN_PATH',)
+    }   
+    public function initialize(){
+        include_once MY_PLUGIN_PATH . 'utils.php';
+        include_once MY_PLUGIN_PATH . 'options-page.php';
+    }
+
+ }
+ $contactPlugin = new ContactPlugin;
+ $contactPlugin->initialize();
+}
