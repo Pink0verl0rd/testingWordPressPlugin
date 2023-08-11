@@ -7,6 +7,8 @@
     <input type="text" name="name"> <br /><br />
     <label>Email : <label>
     <input type="text" name="email"> <br /><br />
+    <label>Alternative Email : <label>
+    <input type="text" name="alt_email"> <br /><br />
     <label>Phone : <label>
     <input type="text" name="phone"> <br /><br />
     <label>Your Message : <label><br />
@@ -30,7 +32,6 @@
                     $("#form_success").html("Your Message was sent").fadeIn();
                 },
                 error:function(){
-                    form.hide()
                     $("#form_error").html("Their was an error submiting your form").fadeIn();
                 },
             })
