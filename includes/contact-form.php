@@ -14,15 +14,25 @@ add_action('manage_submission_posts_custom_column', 'fill_submission_columns', 1
 
 add_action( 'admin_init', 'setup_search');
 
+add_action( 'wp_enqueue_scripts', 'enqueue_custom_scripts');
+
+function enqueue_custom_scripts(){
+    wp_enqueue_style( 'contact-form-plugin', $src:string, $deps:array, $ver:string|boolean|null, $media:string )
+}
+
 function setup_search(){
-    global $typenow;
-    if($typenow === 'submission'){
-        add_filter( 'post_search', 'submission_search_override', 10, 2 );
-    }
+          // Only apply filter to submissions page
+
+          global $typenow;
+
+          if ($typenow === 'submission') {
+    
+                add_filter('posts_search', 'submission_search_override', 10, 2);
+          }
 
 }
 
-function submission_search_override(){
+function submission_search_override($search, $query){
     // Override the submissions page search to include custom meta data
 
     global $wpdb;
