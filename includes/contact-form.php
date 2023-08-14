@@ -1,5 +1,11 @@
 <?php
 
+if( !defined('ABSPATH') ){
+
+    die('You cannot be here');
+
+}
+
 add_shortcode('contact','show_contact_form'); // Creates the shortCode
 
 add_action( 'rest_api_init', 'create_rest_endpoint'); //Creates a endpoint for the form to send the data the user inputs
@@ -156,7 +162,16 @@ function create_rest_endpoint(){
 }
 
 function handle_enquiry($data){
+    // Get all paramas
     $params = $data->get_params();
+
+    // Set field names
+    $field_name = sanitize_text_field( $params['name'] );
+    $field_email = sanitize_email( $params['email'] );
+    $field_phone = sanitize_text_field( $params['phone'] );
+    $field_message = sanitize_textarea_field( $params['message'] );
+
+
     if( !wp_verify_nonce( $params['_wpnonce'], 'wp_rest' )){
         return new WP_Rest_Response('Message not sent',422);
     }
@@ -165,38 +180,51 @@ function handle_enquiry($data){
 
     // send email after this lol
     $headers = [];
-    $admin_email = get_bloginfo('admin_email');
+    $recipient_email = get_plugin_options('contact_plugin_recipients');
+    $admin_email = $recipient_email ? $recipient_email : get_bloginfo('admin_email');
     $admin_name = get_bloginfo('name');
     
-    $headers[] = "From: {$admin_name} <{$admin_email}>";
-    $headers[] = "Reply-to: {$params['name']} <{$params['email']}>";
+    $headers[] = "From: {$admin_name} <{$admin_email}>";    
+    $headers[] = "Reply-to: {$field_name} <{$field_email}>";
     $headers[] = "Content-type : html";
 
-    $subject = "New enquiry from {$params['name']}";
+    $subject = "New enquiry from {$field_name}";
 
     $message = '';
-    $message .= "Message has been sent from {$params['name']} <br /> <br />";
+    $message .= "Message has been sent from {$field_name} <br /> <br />";
 
 
     
     $postarr = [
-        'post_title' => $params['name'],
+        'post_title' => $field_name,
         'post_type' =>  'submission',
         'post_status' => 'publish'
     ];
 
     $post_id = wp_insert_post($postarr);
 
-    wp_mail( $admin_email, $subject, $message, $headers);
-
-
-
     foreach ($params as $label => $value){
-        $message .=  ucfirst($label) . ':' . $value;
-        add_post_meta( $post_id, $label, sanitize_text_field($value));
+
+        switch($label)
+        {
+            case 'message':
+                $value = sanitize_textarea_field($value);
+            break;
+            case'email':
+                $value = sanitize_email($value );
+            break;
+            default:
+                $value = sanitize_text_field($value);
+        }
+        add_post_meta( $post_id, sanitize_text_field($label), sanitize_text_field($value));
+
+        $message .=  sanitize_text_field(ucfirst($label)) . ':' . $value;
     }
 
+    wp_mail( $admin_email, $subject, $message, $headers);
 
+    // Set confirmation message
+    $confirmation_message = str_replace('{name}',$field_name, get_plugin_options('contact_plugin_message') ) ? get_plugin_options('contact_plugin_message') : "The message was sent successfully";
 
-    return new WP_REST_Response('The Message was sent',200);
+    return new WP_REST_Response($confirmation_message,200);
 }

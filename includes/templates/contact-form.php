@@ -1,3 +1,4 @@
+<?php if(get_plugin_options('contact_plugin_active')):?>
 <div id="form_success" style="background:green; color:#fff;"></div>
 <div id="form_error" style="background:red; color:#fff;"></div>
 
@@ -22,14 +23,14 @@
         $("#enquiry_form").submit( function(event){
             event.preventDefault();
             var form = $(this);
-            alert(form.serialize());
+            // alert(form.serialize());
             $.ajax({
                 type:"POST",
                 url:"<?php echo get_rest_url( null, 'v1/contact-form/submit');?>",
                 data: form.serialize(),
-                success:function(){
-                    form.hide()
-                    $("#form_success").html("Your Message was sent").fadeIn();
+                success:function(res){
+                    form.hide();
+                    $("#form_success").html(res).fadeIn();
                 },
                 error:function(){
                     $("#form_error").html("Their was an error submiting your form").fadeIn();
@@ -39,3 +40,6 @@
     })
 
 </script>
+<?php else:?>
+    This form is not active
+<?php endif;?>
