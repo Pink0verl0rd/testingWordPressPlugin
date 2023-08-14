@@ -31,11 +31,11 @@ function create_submissions_page(){
             'singular_name' => 'Submission',
         ],
         'supports' => false,
-        'capability_type' => 'post',
-        'capabilities' => array(
+        'capabilities' =>[
             'create_post' => false,
-        ),
-        'map_meta_cap' => true,
+        ]
+        ,
+        // 'map_meta_cap' => true,
         // 'capabilities' => ['create_posts'=> 'do_not_allow']
     ];
     register_post_type('submission' , $args);
