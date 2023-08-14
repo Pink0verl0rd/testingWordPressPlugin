@@ -14,11 +14,16 @@ add_action('manage_submission_posts_custom_column', 'fill_submission_columns', 1
 
 add_action( 'admin_init', 'setup_search');
 
-add_action( 'wp_enqueue_scripts', 'enqueue_custom_scripts');
+add_action('wp_enqueue_scripts', 'enqueue_custom_scripts');
 
-function enqueue_custom_scripts(){
-    wp_enqueue_style( 'contact-form-plugin', $src:string, $deps:array, $ver:string|boolean|null, $media:string )
+function enqueue_custom_scripts()
+{
+
+      // Enqueue custom css for plugin
+
+      wp_enqueue_style('contact-form-plugin', MY_PLUGIN_URL . 'assets/css/contact-plugin.css');
 }
+
 
 function setup_search(){
           // Only apply filter to submissions page
@@ -92,7 +97,7 @@ function create_meta_box() {
 
 function display_submission() {
     $postmetas = get_post_meta(get_the_ID());
-    unset($postmetas['_edit_lock']);
+    /*unset($postmetas['_edit_lock']);
     echo '<ul>';
     foreach($postmetas as $key => $value)
     {
@@ -100,7 +105,16 @@ function display_submission() {
     }
     echo '</ul>';
 
-    echo '<strong>Fixed Method Name : </strong><br />' . get_post_meta(get_the_ID(),'name',true);
+    echo '<strong>Fixed Method Name : </strong><br />' . get_post_meta(get_the_ID(),'name',true);*/
+
+    echo '<ul>';
+
+    echo '<li><strong>Name:</strong><br /> ' . esc_html(get_post_meta(get_the_ID(), 'name', true)) . '</li>';
+    echo '<li><strong>Email:</strong><br /> ' . esc_html(get_post_meta(get_the_ID(), 'email', true)) . '</li>';
+    echo '<li><strong>Phone:</strong><br /> ' . esc_html(get_post_meta(get_the_ID(), 'phone', true)) . '</li>';
+    echo '<li><strong>Message:</strong><br /> ' . esc_html(get_post_meta(get_the_ID(), 'message', true)) . '</li>';
+
+    echo '</ul>';
 }
 
 function create_submissions_page(){
@@ -179,7 +193,7 @@ function handle_enquiry($data){
 
     foreach ($params as $label => $value){
         $message .=  ucfirst($label) . ':' . $value;
-        add_post_meta( $post_id, $label, $value);
+        add_post_meta( $post_id, $label, sanitize_text_field($value));
     }
 
 
