@@ -129,7 +129,7 @@ function create_submissions_page(){
 
         'public' => true,
         'has_archive' => true,
-        'menu_position' => 30,
+        'menu_position' => 79,
         'publicly_queryable' => false,
         'labels' => [
 

@@ -27,7 +27,7 @@ function create_options_page()
 {
       Container::make('theme_options', __('Contact Form'))
 
-            ->set_page_menu_position(30)
+            ->set_page_menu_position(80)
 
             ->set_icon('dashicons-media-text')
 
