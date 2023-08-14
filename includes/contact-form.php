@@ -1,9 +1,47 @@
 <?php
 
-add_shortcode('contact','show_contact_form');
-add_action( 'rest_api_init', 'create_rest_endpoint');
-add_action( 'init', 'create_submissions_page');
-add_action( 'add_meta_boxes', 'create_meta_box');
+add_shortcode('contact','show_contact_form'); // Creates the shortCode
+
+add_action( 'rest_api_init', 'create_rest_endpoint'); //Creates a endpoint for the form to send the data the user inputs
+
+add_action( 'init', 'create_submissions_page'); //Creates the submissions page
+
+add_action( 'add_meta_boxes', 'create_meta_box'); // Creates the custom columns for the submissions page in respect to the data grab from the from
+
+add_filter( 'manage_submission_posts_columns', 'custom_submission_columns'); // Defines the columns used for our custom post type
+
+add_action('manage_submission_posts_custom_column', 'fill_submission_columns', 10, 2); // Injects the data into the custom post types to be displayed in the submissions page
+
+function fill_submission_columns($column,$post_id){
+    switch ($column) {
+        case 'name':
+              echo esc_html(get_post_meta($post_id, 'name', true));
+              break;
+
+        case 'email':
+              echo esc_html(get_post_meta($post_id, 'email', true));
+              break;
+
+        case 'phone':
+              echo esc_html(get_post_meta($post_id, 'phone', true));
+              break;
+
+        case 'message':
+              echo esc_html(get_post_meta($post_id, 'message', true));
+              break;
+  }
+}
+
+function custom_submission_columns($columns){
+    $columns = array(
+        'cb' => $columns['cb'],
+        'name' => __('Name','contact-plugin'),
+        'email' => __('Email','contact-plugin'),
+        'phone' => __('Phone','contact-plugin'),
+        'message' => __('Message','contact-plugin'),
+    );
+    return $columns;
+}
 
 function create_meta_box() {
     add_meta_box('custom_contact_form','Submission','display_submission', 'submission');
@@ -23,21 +61,28 @@ function display_submission() {
 }
 
 function create_submissions_page(){
+
     $args = [
+
         'public' => true,
         'has_archive' => true,
+        'menu_position' => 30,
+        'publicly_queryable' => false,
         'labels' => [
-            'name' => 'Submissions',
-            'singular_name' => 'Submission',
+
+              'name' => 'Submissions',
+              'singular_name' => 'Submission',
+              'edit_item' => 'View Submission'
+
         ],
         'supports' => false,
-        'capabilities' =>[
-            'create_post' => false,
-        ]
-        ,
-        // 'map_meta_cap' => true,
-        // 'capabilities' => ['create_posts'=> 'do_not_allow']
-    ];
+        'capability_type' => 'post',
+        'capabilities' => array(
+              'create_posts' => false,
+        ),
+        'map_meta_cap' => true
+  ];
+
     register_post_type('submission' , $args);
 }
 
